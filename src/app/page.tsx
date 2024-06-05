@@ -1,7 +1,15 @@
 "use client";
-import Image from "next/image";
-import styles from './page';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+interface Country {
+  countryCode: string;
+  countryName: string;
+}
+
+interface State {
+  stateCode: string;
+  stateName: string;
+}
 
 export default function Home() {
   const [formData, setFormData] = useState({
@@ -10,8 +18,28 @@ export default function Home() {
     country: '',
     state: ''
   });
+  const [countries, setCountries] =  useState<Country[]>([]);
+  const [states, setStates] =  useState<State[]>([]);
 
-  const [errors, setErrors] = useState({});
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://i6azlcvda7.execute-api.us-east-2.amazonaws.com/search/reference');
+        const data = await response.json();
+
+        const dataCountry: Country[] = data.input.countries;
+        setCountries(dataCountry);
+
+        const dataState: State[] = data.input.states;
+        setStates(dataState);
+        
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []); 
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -21,42 +49,18 @@ export default function Home() {
     });
   };
 
-  const validate = () => {
-    let tempErrors: any = {};
-    if (!formData.name) tempErrors.name = 'Name is required';
-    // if (!formData.email) {
-    //   tempErrors.email = 'Email is required';
-    // } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-    //   tempErrors.email = 'Email is invalid';
-    // }
-    // if (!formData.message) tempErrors.message = 'Message is required';
-    return tempErrors;
-  };
-
-  const handleSubmit = (e: any) => {
-    // e.preventDefault();
-    console.log('----', formData)
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length === 0) {
-      console.log('Form Data:', formData);
-      // Aquí puedes enviar los datos a tu backend o API
-      setFormData({
-        name: '',
-        lastName: '',
-        country: '',
-        state: ''
-      });
-    } else {
-      setErrors(validationErrors);
+  const handleSubmit = async (e: any) => {
+    try {
+      // const ref = 'clinics?organizationName=Bone%20%26%20Joint%20Clinic&type=EE';
+      // const response = await fetch('https://i6azlcvda7.execute-api.us-east-2.amazonaws.com/search/clinics?organizationName=Bone%20%26%20Joint%20Clinic&type=EE');
+      
+      // const data = await response.json();
+      // console.log('----', data)
+      
+    } catch (error) {
+      console.error(error);
     }
   };
-
-  const options = [
-    { name: 'Juan', id: 1 },
-    { name: 'Maria', id: 2 },
-    { name: 'Pedro', id: 3 }
-  ];
-
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -96,9 +100,9 @@ export default function Home() {
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
         >
           <option value="" disabled>Select a country</option>
-          {options.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.name}
+          {countries.map((option) => (
+            <option key={option.countryCode} value={option.countryCode}>
+              {option.countryName}
             </option>
           ))}
         </select>
@@ -115,9 +119,9 @@ export default function Home() {
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
         >
           <option value="" disabled>Select a state</option>
-          {options.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.name}
+          {states.map((option) => (
+            <option key={option.stateCode} value={option.stateCode}>
+              {option.stateName}
             </option>
           ))}
         </select>
